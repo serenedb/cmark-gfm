@@ -34,10 +34,8 @@ if (CMARK_SHARED)
   set_property(TARGET ${LIBRARY}
     APPEND PROPERTY MACOSX_RPATH true)
 
-  # Avoid name clash between PROGRAM and LIBRARY pdb files.
   set_target_properties(${LIBRARY} PROPERTIES PDB_NAME cmark-gfm-extensions_dll)
 
-  list(APPEND CMARK_INSTALL ${LIBRARY})
   target_link_libraries(${LIBRARY} libcmark-gfm)
 
 endif()
@@ -60,26 +58,6 @@ if (CMARK_STATIC)
       VERSION ${PROJECT_VERSION})
   endif(MSVC)
 
-  list(APPEND CMARK_INSTALL ${STATICLIBRARY})
-endif()
-
-set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS ON)
-
-include (InstallRequiredSystemLibraries)
-install(TARGETS ${CMARK_INSTALL}
-  EXPORT cmark-gfm-extensions
-  RUNTIME DESTINATION bin
-  LIBRARY DESTINATION lib${LIB_SUFFIX}
-  ARCHIVE DESTINATION lib${LIB_SUFFIX}
-  )
-
-if (CMARK_SHARED OR CMARK_STATIC)
-  install(FILES
-  cmark-gfm-core-extensions.h
-  DESTINATION include
-  )
-
-  install(EXPORT cmark-gfm-extensions DESTINATION lib${LIB_SUFFIX}/cmake-gfm-extensions)
 endif()
 
 # Feature tests

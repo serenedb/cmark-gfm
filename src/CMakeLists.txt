@@ -59,9 +59,6 @@ set(LIBRARY_SOURCES
   ${HEADERS}
   )
 
-set(PROGRAM "cmark-gfm")
-set(PROGRAM_SOURCES main.c)
-
 include_directories(. ${CMAKE_CURRENT_BINARY_DIR})
 include_directories(
   ${PROJECT_BINARY_DIR}/extensions
@@ -74,18 +71,6 @@ include (GenerateExportHeader)
 
 include("../CheckFileOffsetBits.cmake")
 CHECK_FILE_OFFSET_BITS()
-
-add_executable(${PROGRAM} ${PROGRAM_SOURCES})
-
-if(CMARK_SHARED)
-  target_link_libraries(${PROGRAM} libcmark-gfm-extensions libcmark-gfm)
-elseif(CMARK_STATIC)
-  target_link_libraries(${PROGRAM} libcmark-gfm-extensions_static libcmark-gfm_static)
-endif()
-
-# Disable the PUBLIC declarations when compiling the executable:
-set_target_properties(${PROGRAM} PROPERTIES
-  COMPILE_FLAGS "-DCMARK_GFM_STATIC_DEFINE -DCMARK_GFM_EXTENSIONS_STATIC_DEFINE")
 
 # Check integrity of node structure when compiled as debug:
 set(CMAKE_C_FLAGS_DEBUG "${CMAKE_C_FLAGS_DEBUG} -DCMARK_DEBUG_NODES -DDEBUG")
@@ -109,13 +94,10 @@ if (CMARK_SHARED)
   set_property(TARGET ${LIBRARY}
     APPEND PROPERTY MACOSX_RPATH true)
 
-  # Avoid name clash between PROGRAM and LIBRARY pdb files.
   set_target_properties(${LIBRARY} PROPERTIES PDB_NAME cmark-gfm_dll)
 
   generate_export_header(${LIBRARY}
     BASE_NAME ${PROJECT_NAME})
-
-  list(APPEND CMARK_INSTALL ${LIBRARY})
 endif()
 
 if (CMARK_STATIC)
@@ -138,44 +120,6 @@ if (CMARK_STATIC)
     generate_export_header(${STATICLIBRARY}
       BASE_NAME ${PROJECT_NAME})
   endif()
-
-  list(APPEND CMARK_INSTALL ${STATICLIBRARY})
-endif()
-
-if (MSVC)
-  set_property(TARGET ${PROGRAM}
-    APPEND PROPERTY LINK_FLAGS /INCREMENTAL:NO)
-endif(MSVC)
-
-if(NOT MSVC OR CMAKE_HOST_SYSTEM_NAME STREQUAL Windows)
-  set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_NO_WARNINGS ON)
-  include(InstallRequiredSystemLibraries)
-endif()
-
-set(libdir lib${LIB_SUFFIX})
-
-install(TARGETS ${PROGRAM} ${CMARK_INSTALL}
-  EXPORT cmark-gfm
-  RUNTIME DESTINATION bin
-  LIBRARY DESTINATION ${libdir}
-  ARCHIVE DESTINATION ${libdir}
-  )
-
-if(CMARK_SHARED OR CMARK_STATIC)
-  configure_file(${CMAKE_CURRENT_SOURCE_DIR}/libcmark-gfm.pc.in
-    ${CMAKE_CURRENT_BINARY_DIR}/libcmark-gfm.pc @ONLY)
-  install(FILES ${CMAKE_CURRENT_BINARY_DIR}/libcmark-gfm.pc
-    DESTINATION ${libdir}/pkgconfig)
-
-  install(FILES
-    cmark-gfm.h
-    cmark-gfm-extension_api.h
-    ${CMAKE_CURRENT_BINARY_DIR}/cmark-gfm_export.h
-    ${CMAKE_CURRENT_BINARY_DIR}/cmark-gfm_version.h
-    DESTINATION include
-    )
-
-  install(EXPORT cmark-gfm DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake)
 endif()
 
 # Feature tests

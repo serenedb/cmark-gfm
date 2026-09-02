@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.5...3.29)
 project(cmark-gfm)
 
 set(PROJECT_VERSION_MAJOR 0)
@@ -33,7 +33,6 @@ add_subdirectory(extensions)
 if(CMARK_TESTS AND (CMARK_SHARED OR CMARK_STATIC))
   add_subdirectory(api_test)
 endif()
-add_subdirectory(man)
 if(CMARK_TESTS)
   enable_testing()
   add_subdirectory(test testdir)
