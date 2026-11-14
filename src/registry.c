@@ -7,6 +7,7 @@
 #include "syntax_extension.h"
 #include "registry.h"
 #include "plugin.h"
+#include "inlines.h"
 
 extern cmark_mem CMARK_DEFAULT_MEM_ALLOCATOR;
 
@@ -21,10 +22,14 @@ void cmark_register_plugin(cmark_plugin_init_func reg_fn) {
   }
 
   cmark_llist *syntax_extensions_list = cmark_plugin_steal_syntax_extensions(plugin),
-              *it;
+              *it, *chars;
 
   for (it = syntax_extensions_list; it; it = it->next) {
-    syntax_extensions = cmark_llist_append(&CMARK_DEFAULT_MEM_ALLOCATOR, syntax_extensions, it->data);
+    cmark_syntax_extension *ext = (cmark_syntax_extension *) it->data;
+    syntax_extensions = cmark_llist_append(&CMARK_DEFAULT_MEM_ALLOCATOR, syntax_extensions, ext);
+    for (chars = ext->special_inline_chars; chars; chars = chars->next) {
+      cmark_inlines_add_special_character((unsigned char)(size_t)chars->data, ext->emphasis);
+    }
   }
 
   cmark_llist_free(&CMARK_DEFAULT_MEM_ALLOCATOR, syntax_extensions_list);
